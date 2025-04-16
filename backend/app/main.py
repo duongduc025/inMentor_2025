@@ -3,8 +3,9 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routers import chat
+from app.api.routers import job
 from app.database import engine
-from app.models import profile, chat_session, message
+from app.models import profile, chat_session, message, job_description
 from dotenv import load_dotenv, find_dotenv
 
 _ = load_dotenv(find_dotenv()) # read local .env file
@@ -14,12 +15,13 @@ def create_tables():
     profile.Base.metadata.create_all(bind=engine)
     chat_session.Base.metadata.create_all(bind=engine)
     message.Base.metadata.create_all(bind=engine)
+    job_description.Base.metadata.create_all(bind=engine)  
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3001"],  # Địa chỉ frontend của bạn
+    allow_origins=["*"],  # Allow all origins in development
     allow_credentials=True,
     allow_methods=["*"],  # Hoặc chỉ định ["GET", "POST", "PATCH", "DELETE"]
     allow_headers=["*"],  # Hoặc chỉ định ["Authorization", "Content-Type"]
@@ -30,3 +32,4 @@ async def on_startup():
     create_tables()
 
 app.include_router(chat.router, prefix="/api")
+app.include_router(job.router, prefix="/api", tags=["jobs"])  # Add this line if missing

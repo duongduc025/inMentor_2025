@@ -4,7 +4,6 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
-import Sidebar from '@/components/Sidebar';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
@@ -17,7 +16,12 @@ const inter = Inter({ subsets: ['latin'] });
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { loading, user } = useAuth();
   const pathname = usePathname();
-  const shouldShowSidebarAndNavbar = !(pathname === '/' && !user);
+  
+  // Show navbar on home, contact, and all job pages (including job detail pages)
+  const shouldShowNavbar = pathname === '/' || 
+                           pathname === '/contact' ||
+                           pathname === '/job' ||
+                           pathname.startsWith('/job/');
 
   if (loading) {
     return (
@@ -30,12 +34,11 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <ChatSessionProvider>
       <div className="flex flex-grow h-screen">
-        {shouldShowSidebarAndNavbar && <Sidebar />}
         <main className="flex flex-grow flex-col max-w-full">
-          {shouldShowSidebarAndNavbar && <Navbar />}
+          {shouldShowNavbar && <Navbar />}
           <div
             className={cn(
-              shouldShowSidebarAndNavbar
+              shouldShowNavbar
                 ? 'min-h-[calc(100vh-72px)]'
                 : 'min-h-[100vh]'
             )}
