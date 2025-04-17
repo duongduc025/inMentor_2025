@@ -145,8 +145,20 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 };
 
-const AssessmentPage = () => {
+interface AssessmentPageProps {
+  onComplete: () => void;
+  processData: any;
+}
+
+const AssessmentPage = ({ onComplete, processData }: AssessmentPageProps) => {
   const [activeTab, setActiveTab] = useState<'summary' | 'detailed'>('summary');
+
+  // Function to complete the assessment process
+  const handleCompleteAssessment = () => {
+    // In a real app, you would save the assessment data to your backend
+    console.log("Completing assessment for process:", processData.id);
+    onComplete();
+  };
 
   return (
     <div className="min-h-screen bg-[#FFFFFF]">
@@ -154,19 +166,21 @@ const AssessmentPage = () => {
       <div className="bg-[#007BFF] text-white p-4 shadow-md">
         <div className="container mx-auto">
           <div className="flex justify-between items-center">
-            <Link href="/interview" className="flex items-center text-white hover:text-blue-100">
+            <Link href="/dashboard" className="flex items-center text-white hover:text-blue-100">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Quay Lại Phỏng Vấn
+              Quay Lại
             </Link>
             <h1 className="text-xl font-semibold">Đánh Giá Phỏng Vấn</h1>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-white/10 text-white border-white/20 hover:bg-white/20"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Xuất Báo Cáo
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Xuất Báo Cáo
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -543,6 +557,35 @@ const AssessmentPage = () => {
             </Card>
           </div>
         )}
+      </div>
+
+      {/* Add a completion button at the bottom */}
+      <div className="container mx-auto px-4 py-6">
+        <Card className="border-none shadow bg-gradient-to-r from-[#007BFF]/10 to-white mb-8">
+          <div className="p-6">
+            <div className="flex items-start">
+              <FileText className="h-6 w-6 text-[#007BFF] mr-3 mt-1" />
+              <div>
+                <h3 className="text-lg font-medium text-[#343A40]">Kết thúc quá trình đánh giá</h3>
+                <p className="mt-2">
+                  Bạn đã hoàn thành việc đánh giá ứng viên. Vui lòng xác nhận để lưu kết quả và hoàn tất quy trình.
+                </p>
+                <div className="mt-4">
+                  <Button 
+                    className="bg-[#007BFF] hover:bg-[#0056b3]"
+                    onClick={handleCompleteAssessment}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Hoàn thành quá trình
+                  </Button>
+                  <Button variant="outline" className="ml-3 text-[#343A40] border-[#343A40]">
+                    Chỉnh sửa đánh giá
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   );

@@ -269,8 +269,8 @@ export default function LandingPage() {
               {[
                 { value: "10,000+", label: "Buổi phỏng vấn" },
                 { value: "94%", label: "Tỷ lệ thành công" },
-                { value: "120+", label: "Ngành nghề khác nhau" },
-                { value: "5,000+", label: "Người dùng hài lòng" }
+                { value: "12+", label: "Ngành nghề khác nhau" },
+                { value: "5,000+", label: "Công việc mới mỗi ngày"}
               ].map((stat, index) => (
                 <div key={index} className="flex flex-col items-center text-center">
                   <p className="text-3xl md:text-4xl font-bold text-[#007BFF]">{stat.value}</p>

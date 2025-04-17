@@ -10,7 +10,8 @@ import {
   MoreVertical, 
   X,
   Clock,
-  MicOff
+  MicOff,
+  Check
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -85,7 +86,12 @@ const getSenderName = (role: string) => {
   return role === "interviewer" ? "Alex" : "Aaron Wang";
 };
 
-const MeetingInterface = () => {
+interface MeetingInterfaceProps {
+  onComplete: () => void;
+  processData: any;
+}
+
+const MeetingInterface = ({ onComplete, processData }: MeetingInterfaceProps) => {
   // States for media controls
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isMicOn, setIsMicOn] = useState(true);
@@ -93,6 +99,7 @@ const MeetingInterface = () => {
   const [message, setMessage] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isInterviewComplete, setIsInterviewComplete] = useState(false);
 
   // Hàm để mở camera
   const startCamera = useCallback(async () => {
@@ -185,6 +192,22 @@ const MeetingInterface = () => {
     if (e.key === 'Enter') {
       handleSendMessage();
     }
+  };
+
+  // Function to end the interview and proceed to assessment
+  const handleEndInterview = () => {
+    // Clean up media streams
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+    
+    // Show completion dialog
+    setIsInterviewComplete(true);
+  };
+
+  // Function to complete interview and proceed to assessment
+  const handleCompleteInterview = () => {
+    onComplete();
   };
 
   return (

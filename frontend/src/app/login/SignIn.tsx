@@ -35,17 +35,23 @@ const SignIn = () => {
   const handleSignIn: SubmitHandler<FormFields> = async (data) => {
     const { email, password } = data;
     const supabase = createClient();
-
+  
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
+  
     if (error) {
       form.setError('root', {
         message: 'Could not authenticate user!',
       });
     } else {
+      // Lấy JWT token sau khi đăng nhập thành công
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.session?.access_token) {
+        console.log('JWT Token:', session.session.access_token);
+      }
+  
       router.push('/');
     }
   };

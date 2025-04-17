@@ -57,12 +57,18 @@ export const getJobs = async (
   }
 };
 
-export const getJobById = async (id: string): Promise<Job> => {
+// Function to get a specific job by ID
+export async function getJobById(jobId: string): Promise<Job> {
   try {
-    const response = await axios.get(`${API_URL}${API_PREFIX}/jobs/${id}`);
-    return response.data;
+    const response = await fetch(`${API_URL}${API_PREFIX}/jobs/${jobId}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch job: ${response.status}`);
+    }
+    
+    return await response.json();
   } catch (error) {
-    console.error(`Error fetching job with ID ${id}:`, error);
+    console.error("Error fetching job:", error);
     throw error;
   }
-};
+}

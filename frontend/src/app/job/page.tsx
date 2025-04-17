@@ -16,7 +16,7 @@ export default function JobListings() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const [page, setPage] = useState(0);
-  const jobsPerPage = 9; // Changed back to 9 from 24
+  const jobsPerPage = 9; 
   const [searchTip, setSearchTip] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

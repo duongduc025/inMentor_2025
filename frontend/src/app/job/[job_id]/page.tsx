@@ -22,21 +22,32 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getJobById } from "@/lib/api";
 
 export default function JobDetail({ params }: { params: { job_id: string } }) {
   const router = useRouter();
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // Add error state
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    // Fetch job data based on ID
-    const foundJob = Joblist.find(j => j.id === params.job_id);
+    // Fetch job data from API
+    const fetchJobData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const jobData = await getJobById(params.job_id);
+        setJob(jobData);
+      } catch (err) {
+        console.error("Failed to fetch job details:", err);
+        setError("Không thể tải thông tin việc làm. Vui lòng thử lại sau.");
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    if (foundJob) {
-      setJob(foundJob);
-    }
-    setLoading(false);
+    fetchJobData();
   }, [params.job_id]);
 
   if (loading) {
@@ -47,11 +58,13 @@ export default function JobDetail({ params }: { params: { job_id: string } }) {
     );
   }
 
-  if (!job) {
+  if (error || !job) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <Briefcase className="w-16 h-16 text-gray-300 mb-4" />
-        <h1 className="text-2xl font-bold text-[#343A40] mb-2">Không tìm thấy việc làm</h1>
+        <h1 className="text-2xl font-bold text-[#343A40] mb-2">
+          {error || "Không tìm thấy việc làm"}
+        </h1>
         <p className="text-gray-600 mb-6">Việc làm bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
         <Button 
           variant="outline" 
@@ -64,6 +77,17 @@ export default function JobDetail({ params }: { params: { job_id: string } }) {
       </div>
     );
   }
+
+  // Format deadline date if available
+  const deadlineDate = job.deadline 
+    ? new Date(job.deadline).toLocaleDateString('vi-VN')
+    : "08/05/2025";
+  
+  // Format posted date if available
+  const postedDate = job.created_at
+    ? new Date(job.created_at).toLocaleDateString('vi-VN')
+    : null;
+
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -139,6 +163,16 @@ export default function JobDetail({ params }: { params: { job_id: string } }) {
                   <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
                 </svg>
                 Ứng tuyển ngay
+              </Button>
+              <Button 
+                variant="outline" 
+                className="bg-[#28a745] text-white hover:bg-[#218838] flex items-center gap-2 px-6 border-0"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                </svg>
+                Phỏng vấn ảo
               </Button>
               <Button 
                 variant="outline" 

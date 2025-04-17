@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routers import chat
 from app.api.routers import job
+from app.api.routers import interview
 from app.database import engine
 from app.models import profile, chat_session, message, job_description
 from dotenv import load_dotenv, find_dotenv
@@ -32,4 +33,5 @@ async def on_startup():
     create_tables()
 
 app.include_router(chat.router, prefix="/api")
-app.include_router(job.router, prefix="/api", tags=["jobs"])  # Add this line if missing
+app.include_router(job.router, prefix="/api", tags=["jobs"])  
+app.include_router(interview.router, prefix="/api", tags=["interviews"])  
