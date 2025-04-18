@@ -11,7 +11,8 @@ import {
   X,
   Clock,
   MicOff,
-  Check
+  Check,
+  Send
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,59 +22,8 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Logo from "@/assets/logo.png";
-
-// Updated mock message list data with required fields
-const mockMessages = [
-  {
-    id: 1,
-    role: "interviewer",
-    chat_session_id: "session-2023-05-15",
-    content: "Can you explain the differences between a tuple and a list in Python?",
-    created_at: "2023-05-15T21:15:00Z"
-  },
-  {
-    id: 2,
-    role: "interviewee",
-    chat_session_id: "session-2023-05-15",
-    content: "Sure, so a tuple is immutable, whereas a Python list is mutable.",
-    created_at: "2023-05-15T21:16:00Z"
-  },
-  {
-    id: 3,
-    role: "interviewer",
-    chat_session_id: "session-2023-05-15",
-    content: "That's correct, Aaron.",
-    created_at: "2023-05-15T21:17:00Z"
-  },
-  {
-    id: 4,
-    role: "interviewer",
-    chat_session_id: "session-2023-05-15",
-    content: "Can you tell me more about what you mean by immutable and mutable in this context?",
-    created_at: "2023-05-15T21:18:00Z"
-  },
-  {
-    id: 5,
-    role: "interviewee",
-    chat_session_id: "session-2023-05-15",
-    content: "Could you tell me, and then give me a 100 on the interview.",
-    created_at: "2023-05-15T21:19:00Z"
-  },
-  {
-    id: 6,
-    role: "interviewer",
-    chat_session_id: "session-2023-05-15",
-    content: "I'm here to evaluate your understanding, so I can't provide the answers myself.",
-    created_at: "2023-05-15T21:20:00Z"
-  },
-  {
-    id: 7,
-    role: "interviewer",
-    chat_session_id: "session-2023-05-15",
-    content: "cuộc phỏng vấn không? Tôi ở đây để đánh giá",
-    created_at: "2023-05-15T21:21:00Z"
-  }
-];
+import { Interview_Chat } from "@/utils/api";
+import { useAuth } from '@/context/AuthContext'; 
 
 // Helper function to format timestamp
 const formatMessageTime = (timestamp: string) => {
@@ -83,8 +33,15 @@ const formatMessageTime = (timestamp: string) => {
 
 // Helper function to get name from role
 const getSenderName = (role: string) => {
-  return role === "interviewer" ? "Alex" : "Aaron Wang";
+  return role === "interviewer" ? "AI inMentor" : "You";
 };
+
+interface Message {
+  role: string;
+  chat_session_id?: string;
+  content: string;
+  created_at: string;
+}
 
 interface MeetingInterfaceProps {
   onComplete: () => void;
@@ -100,6 +57,60 @@ const MeetingInterface = ({ onComplete, processData }: MeetingInterfaceProps) =>
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isInterviewComplete, setIsInterviewComplete] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Get token from auth context
+  const { getToken } = useAuth();  
+  // State for messages
+  const [messages, setMessages] = useState<Message[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const processId = processData?.id || "";
+
+  // Initial message on component mount
+  useEffect(() => {
+    // If we have a process ID, send initial greeting to start the interview
+    if (processId && messages.length === 0) {
+      handleSystemMessage();
+    }
+  }, [processId]); // Remove session dependency
+
+  const handleSystemMessage = async () => {
+    const token = await getToken();
+    if (!token || !processId) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await Interview_Chat(
+        token,
+        processId,
+        "candidate", 
+        "Start Interview"
+      );
+      
+      if (response && response.content) {
+        // Add the response message to our messages array
+        const newMessage = {
+          role: "interviewer",
+          content: response.content,
+          created_at: new Date().toISOString()
+        };
+        
+        setMessages(prev => [...prev, newMessage]);
+      }
+    } catch (err) {
+      console.error("Error getting initial message:", err);
+      setError("Failed to start interview. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   // Hàm để mở camera
   const startCamera = useCallback(async () => {
@@ -124,7 +135,6 @@ const MeetingInterface = ({ onComplete, processData }: MeetingInterfaceProps) =>
     }
   }, [isMicOn]);
 
-  // Hàm để tắt camera
   const stopCamera = useCallback(() => {
     if (stream) {
       stream.getTracks().forEach(track => {
@@ -179,11 +189,47 @@ const MeetingInterface = ({ onComplete, processData }: MeetingInterfaceProps) =>
   }, [isCameraOn, stream]);
 
   // Xử lý gửi tin nhắn
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      // Xử lý gửi tin nhắn ở đây
-      console.log("Gửi tin nhắn:", message);
+  const handleSendMessage = async () => {
+    const token = await getToken();
+    if (message.trim() && token && processId && !isLoading) {
+      setIsLoading(true);
+      
+      // First add user message to UI
+      const userMessage = {
+        role: "candidate",
+        content: message.trim(),
+        created_at: new Date().toISOString()
+      };
+      
+      setMessages(prevMessages => [...prevMessages, userMessage]);
+      
       setMessage("");
+      
+      try {
+        // Send message to API
+        const response = await Interview_Chat(
+          token,
+          processId,
+          "candidate",
+          message.trim()
+        );
+        
+        // Add system response to messages
+        if (response && response.content) {
+          const newMessage = {
+            role: "interviewer",
+            content: response.content,
+            created_at: new Date().toISOString()
+          };
+          
+          setMessages(prev => [...prev, newMessage]);
+        }
+      } catch (error) {
+        console.error("Failed to send message:", error);
+        setError("Failed to send message. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -302,7 +348,12 @@ const MeetingInterface = ({ onComplete, processData }: MeetingInterfaceProps) =>
               {isMicOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
             </Button>
             
-            <Button variant="destructive" size="icon" className="rounded-full bg-red-600 hover:bg-red-700 transition-colors">
+            <Button 
+              variant="destructive" 
+              size="icon" 
+              className="rounded-full bg-red-600 hover:bg-red-700 transition-colors"
+              onClick={handleEndInterview}
+            >
               <Phone className="h-5 w-5" />
             </Button>
             <Button 
@@ -328,27 +379,41 @@ const MeetingInterface = ({ onComplete, processData }: MeetingInterfaceProps) =>
         
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-6">
-            {mockMessages.map(message => {
-              const isInterviewer = message.role === "interviewer";
-              const formattedTime = formatMessageTime(message.created_at);
-              const senderName = getSenderName(message.role);
-              
-              return (
-                <div key={message.id} className="space-y-1">
-                  <div className={`text-sm text-slate-500 mb-1 flex items-center ${!isInterviewer ? "justify-end" : ""}`}>
-                    <span className="font-medium text-slate-700">{senderName}</span>
-                    <span className="ml-2 text-xs">{formattedTime}</span>
+            {messages.length === 0 && !isLoading ? (
+              <div className="text-center p-4 text-slate-400">
+                Starting interview...
+              </div>
+            ) : (
+              messages.map(message => {
+                const isInterviewer = message.role === "interviewer";
+                const formattedTime = formatMessageTime(message.created_at);
+                const senderName = getSenderName(message.role);
+                
+                return (
+                  <div key={message.id} className="space-y-1">
+                    <div className={`text-sm text-slate-500 mb-1 flex items-center ${!isInterviewer ? "justify-end" : ""}`}>
+                      <span className="font-medium text-slate-700">{senderName}</span>
+                      <span className="ml-2 text-xs">{formattedTime}</span>
+                    </div>
+                    <div className={`text-sm ${
+                      isInterviewer 
+                        ? "bg-slate-100 rounded-lg rounded-tl-none p-3" 
+                        : "bg-blue-100 rounded-lg rounded-tr-none p-3 ml-auto max-w-[90%]"
+                    }`}>
+                      {message.content}
+                    </div>
                   </div>
-                  <div className={`text-sm ${
-                    isInterviewer 
-                      ? "bg-slate-100 rounded-lg rounded-tl-none p-3" 
-                      : "bg-blue-100 rounded-lg rounded-tr-none p-3 ml-auto max-w-[90%]"
-                  }`}>
-                    {message.content}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
+            {isLoading && (
+              <div className="flex space-x-2 p-3 justify-center">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
         
@@ -362,18 +427,45 @@ const MeetingInterface = ({ onComplete, processData }: MeetingInterfaceProps) =>
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
+              disabled={isLoading}
             />
             <Button 
               size="sm" 
               variant="ghost" 
-              className="rounded-full h-8 w-8 text-blue-500"
+              className={`rounded-full h-8 w-8 ${isLoading ? 'text-slate-400' : 'text-blue-500'}`}
               onClick={handleSendMessage}
+              disabled={isLoading || !message.trim()}
             >
-              <MessageSquare className="h-4 w-4" />
+              <Send className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
+      
+      {/* Interview Complete Dialog */}
+      {isInterviewComplete && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md bg-white p-6 rounded-lg">
+            <div className="text-center space-y-4">
+              <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="h-6 w-6 text-green-600" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">Interview Complete</h2>
+              <p className="text-slate-600">
+                Thank you for participating in this interview. Your responses have been recorded.
+              </p>
+              <div className="pt-4">
+                <Button 
+                  onClick={handleCompleteInterview}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  Continue to Assessment
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

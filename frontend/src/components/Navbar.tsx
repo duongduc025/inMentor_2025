@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Bell, Menu, X, LogOut } from 'lucide-react';
+import { Bell, Menu, X, LogOut, User } from 'lucide-react';
 import ThemeModeToggle from './ThemeModeToggle';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ import Logo  from '@/assets/logo.png';
 const Navbar = () => {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const randomAvatarNumber = Math.floor(Math.random() * 100);
+  const randomAvatarNumber = user?.email ? user.email.substring(0, 2) : Math.floor(Math.random() * 100);
 
   const navLinks = [
     { path: '/', display: 'Home' },
@@ -72,8 +72,6 @@ const Navbar = () => {
           <div className="flex items-center gap-4"> 
             {user ? (
               <>
-          
-
                 {/* User Avatar with Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -88,6 +86,12 @@ const Navbar = () => {
                   <DropdownMenuContent className="w-56 mr-4">
                     <DropdownMenuLabel>{`Welcome, ${user.email}`}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="flex items-center w-full">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Hồ sơ</span>
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={logout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
@@ -168,18 +172,30 @@ const Navbar = () => {
                   </li>
                 </>
               ) : (
-                <li className="border-b pb-2">
-                  <button
-                    onClick={() => {
-                      logout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="text-gray-700 text-[16px] leading-7 font-[500] hover:text-[#DAA520] flex items-center gap-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Log out</span>
-                  </button>
-                </li>
+                <>
+                  <li className="border-b pb-2">
+                    <Link
+                      href="/profile"
+                      className="text-gray-700 text-[16px] leading-7 font-[500] hover:text-[#DAA520] flex items-center gap-2"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User className="h-4 w-4" />
+                      <span>Hồ sơ</span>
+                    </Link>
+                  </li>
+                  <li className="border-b pb-2">
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="text-gray-700 text-[16px] leading-7 font-[500] hover:text-[#DAA520] flex items-center gap-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Log out</span>
+                    </button>
+                  </li>
+                </>
               )}
             </ul>
           </div>

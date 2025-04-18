@@ -28,6 +28,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { createNewInterview } from '@/utils/api';
+import { useAuth } from '@/context/AuthContext'; 
 
 interface CVEvaluatorProps {
   onComplete: () => void;
@@ -41,6 +43,9 @@ const CVEvaluator = ({ onComplete, processData }: CVEvaluatorProps) => {
   const [evaluationResult, setEvaluationResult] = useState<any | null>(null);
   const [currentStep, setCurrentStep] = useState(1); // 1: Input, 2: Loading, 3: Results
   const [analyzeProgress, setAnalyzeProgress] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { getToken } = useAuth();
+
   
   // Custom color scheme
   const colors = {
@@ -127,14 +132,27 @@ const CVEvaluator = ({ onComplete, processData }: CVEvaluatorProps) => {
   // Function to handle proceeding to interview stage
   const handleProceedToInterview = async () => {
     try {
-      // In a real app, you would save the CV assessment result to your backend
-      console.log("Saving CV assessment for process:", processData.id);
+      setIsProcessing(true);
+      const token = await getToken(); // Use getToken from auth context instead of localStorage
+      if (!token) {
+        throw new Error("User is not authenticated");
+      }
+      // Create a new interview using the API
+      await createNewInterview(
+        token,
+        processData.id, // Use the process ID from the props
+        "Interview for " + processData.job_title || "New Interview" // Set a default title
+      );
+      
+      console.log("Interview created successfully for process:", processData.id);
       
       // Call the onComplete callback to update the process status
       onComplete();
     } catch (error) {
-      console.error("Error saving CV assessment:", error);
-      // Handle error appropriately
+      console.error("Error creating interview:", error);
+      // Handle error appropriately - you might want to show a toast or error message
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -477,9 +495,18 @@ const CVEvaluator = ({ onComplete, processData }: CVEvaluatorProps) => {
               <Button 
                 onClick={handleProceedToInterview}
                 className="bg-green-600 hover:bg-green-700 text-white transition-all"
+                disabled={isProcessing}
               >
-                Tiến hành phỏng vấn
-                <ArrowRight className="ml-2 h-4 w-4" />
+                {isProcessing ? (
+                  <>
+                    <span className="animate-pulse">Đang xử lý...</span>
+                  </>
+                ) : (
+                  <>
+                    Tiến hành phỏng vấn
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
               </Button>
             </div>
           </Card>
@@ -815,7 +842,7 @@ const CVEvaluator = ({ onComplete, processData }: CVEvaluatorProps) => {
                               <span className="font-medium">{evaluationResult.experienceMatch.yearsPresent} năm</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span>Mức độ li��n quan:</span>
+                              <span>Mức độ liên quan:</span>
                               <span className="font-medium">{evaluationResult.experienceMatch.relevanceScore}%</span>
                             </div>
                             <div className="w-full relative h-2 mt-1 bg-slate-200 rounded-full overflow-hidden">
@@ -905,9 +932,18 @@ const CVEvaluator = ({ onComplete, processData }: CVEvaluatorProps) => {
               <Button 
                 onClick={handleProceedToInterview}
                 className="bg-green-600 hover:bg-green-700 text-white transition-all"
+                disabled={isProcessing}
               >
-                Tiến hành phỏng vấn
-                <ArrowRight className="ml-2 h-4 w-4" />
+                {isProcessing ? (
+                  <>
+                    <span className="animate-pulse">Đang xử lý...</span>
+                  </>
+                ) : (
+                  <>
+                    Tiến hành phỏng vấn
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
               </Button>
             </div>
           </Card>

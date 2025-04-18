@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Building } from "lucide-react";
-import { getJobs, type Job, type PaginatedJobsResponse } from "../../lib/api";
+import { getJobs } from "../../utils/api";
+import {type Job, type PaginatedJobsResponse } from "../../types/job.interface";
 
 export default function JobListings() {
   const [location, setLocation] = useState("");
@@ -312,7 +313,9 @@ export default function JobListings() {
                   <CardFooter className="flex p-0 border-t bg-gray-50">
                     <Button
                       variant="ghost"
-                      onClick={() => router.push(`/job/${job.id}`)}
+                      onClick={() =>  {router.push(`/job/${job.id}`)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
                       className="flex-1 rounded-none h-12 hover:bg-white hover:text-[#007BFF] text-[#343A40] font-medium"
                     >
                       Xem chi tiết

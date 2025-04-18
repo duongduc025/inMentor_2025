@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Joblist } from "@/lib/job-list";
+import { useAuth } from '@/context/AuthContext'; // Add this import
 import { 
   ArrowLeft, 
   MapPin, 
@@ -22,10 +23,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getJobById } from "@/lib/api";
+import { getJobById } from "@/utils/api";
+import { createNewInterviewProcess } from "@/utils/api";
 
 export default function JobDetail({ params }: { params: { job_id: string } }) {
   const router = useRouter();
+  const { getToken } = useAuth(); // Add this line to access the auth context
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null); // Add error state
@@ -88,6 +91,21 @@ export default function JobDetail({ params }: { params: { job_id: string } }) {
     ? new Date(job.created_at).toLocaleDateString('vi-VN')
     : null;
 
+  const handleVirtualInterview = async () => {
+    try {
+      const token = await getToken(); // Use getToken from auth context instead of localStorage
+      if (!token) {
+        throw new Error("User is not authenticated");
+      }
+
+      const processId = await createNewInterviewProcess(token, job.id);  
+      console.log("Virtual interview process created with ID:", processId);
+      router.push(`/interview_process/${processId}`);
+    } catch (err) {
+      console.error("Failed to create virtual interview process:", err);
+      alert("Không thể tạo quy trình phỏng vấn. Vui lòng thử lại sau.");
+    }
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -167,6 +185,7 @@ export default function JobDetail({ params }: { params: { job_id: string } }) {
               <Button 
                 variant="outline" 
                 className="bg-[#28a745] text-white hover:bg-[#218838] flex items-center gap-2 px-6 border-0"
+                onClick={handleVirtualInterview}  // Add the onClick handler here
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="23 7 16 12 23 17 23 7"></polygon>

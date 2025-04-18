@@ -21,7 +21,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const shouldShowNavbar = pathname === '/' || 
                            pathname === '/contact' ||
                            pathname === '/job' ||
-                           pathname.startsWith('/job/');
+                           pathname.startsWith('/job/') ||
+                           pathname === '/profile';
 
   if (loading) {
     return (

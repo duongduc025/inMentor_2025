@@ -10,6 +10,7 @@ from app.models.interview_message import InterviewMessage
 from uuid import UUID
 from app.dependencies import verify_jwt
 from datetime import datetime
+from app.services.interview_service import InterviewService
 router = APIRouter()
 
 
@@ -18,10 +19,14 @@ router = APIRouter()
 @router.post("/interview_processes", response_model=InterviewProcessResponse)
 async def create_interview_process(request: InterviewProcessRequest, user=Depends(verify_jwt), db: Session = Depends(get_db)):
     job_id = request.job_id
+    # Use "cv_review" as the default status or get it from the request
+    # The status should match one of the allowed values in your DB constraint
+    status = "cv_review" if request.status is None else request.status
+    
     new_process = InterviewProcess(
-        candidate_id=user.user.id,
-        job_id=job_id,
-        status=request.status,
+        candidate_id=UUID(user.user.id),
+        job_id=request.job_id,
+        status=status,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -39,7 +44,7 @@ async def create_cv_assessment(process_id: UUID, request: InterviewCVAssessmentR
     interview_process = db.query(InterviewProcess).filter(InterviewProcess.id == process_id).first()
     if not interview_process:
         raise HTTPException(status_code=404, detail="Interview process not found")
-    if interview_process.candidate_id != user.user.id:
+    if str(interview_process.candidate_id) != user.user.id:
         raise HTTPException(status_code=403, detail="You do not have permission to access this interview process")
     # Create the CV assessment
     new_assessment = InterviewCVAssessment(
@@ -61,7 +66,7 @@ async def create_final_assessment(process_id: UUID, request: InterviewFinalAsses
     interview_process = db.query(InterviewProcess).filter(InterviewProcess.id == process_id).first()
     if not interview_process:
         raise HTTPException(status_code=404, detail="Interview process not found")
-    if interview_process.candidate_id != user.user.id:
+    if str(interview_process.candidate_id) != user.user.id:
         raise HTTPException(status_code=403, detail="You do not have permission to access this interview process")
     # Create the CV assessment
     interview = db.query(Interview).filter(Interview.process_id == process_id).first()
@@ -85,7 +90,7 @@ async def create_interview(process_id: UUID, request: InterviewRequest, user=Dep
     interview_process = db.query(InterviewProcess).filter(InterviewProcess.id == process_id).first()
     if not interview_process:
         raise HTTPException(status_code=404, detail="Interview process not found")
-    if interview_process.candidate_id != user.user.id:
+    if str(interview_process.candidate_id) != user.user.id:
         raise HTTPException(status_code=403, detail="You do not have permission to access this interview process")
     
     # Create the interview
@@ -100,26 +105,45 @@ async def create_interview(process_id: UUID, request: InterviewRequest, user=Dep
     db.refresh(new_interview)
     return new_interview
 
+
+#Messages-related endpoints
 @router.post("/interview_processes/{process_id}/messages", response_model=InterviewMessageResponse)
 async def create_interview_message(process_id: UUID, request: InterviewMessageRequest, user=Depends(verify_jwt), db: Session = Depends(get_db)):
         process = db.query(InterviewProcess).filter(InterviewProcess.id == process_id).first()
         if not process:
             raise HTTPException(status_code=404, detail="Interview process not found")
-        if process.candidate_id != user.user.id:
-            raise HTTPException(status_code=403, detail="You do not have permission to access this interview process")
         interview = db.query(Interview).filter(Interview.process_id == process_id).first()
         if not interview:
             raise HTTPException(status_code=404, detail="Interview not found")
+        
+        # Save candidate's message
         new_message = InterviewMessage(
             interview_id = interview.id,
-            role = request.role,
+            role = request.role if request.role else "candidate",
             content = request.content,
             created_at = datetime.utcnow()
         )
         db.add(new_message)
         db.commit()
         db.refresh(new_message)
-        return new_message
+        
+        # Get AI response
+        interview_service = InterviewService()
+        # Use interview.id as the session ID
+        ai_response = interview_service.get_response(request.content, str(interview.id))
+        
+        # Save AI's response message
+        ai_message = InterviewMessage(
+            interview_id = interview.id,
+            role = "interviewer",  
+            content = ai_response,
+            created_at = datetime.utcnow()
+        )
+        db.add(ai_message)
+        db.commit()
+        db.refresh(ai_message)
+
+        return ai_message
 
 
 @router.get("/interview_processes/{process_id}/messages", response_model=list[InterviewMessageResponse])
@@ -132,4 +156,6 @@ async def get_interview_messages(process_id: UUID, user=Depends(verify_jwt), db:
     
     messages = db.query(InterviewMessage).filter(InterviewMessage.interview_id == process.id).all()
     return messages
+
+
 

@@ -73,7 +73,7 @@ const NavigationGuide: React.FC<NavigationGuideProps> = ({ currentStep, processI
         <div className="flex items-center justify-between py-3">
           <Link href="/dashboard" className="text-blue-600 hover:text-blue-800 font-medium flex items-center">
             <AlertCircle className="h-4 w-4 mr-1" /> 
-            Interview Process: Candidate #123
+            Interview Process
           </Link>
           
           {/* Desktop view - full progress tracker */}

@@ -63,7 +63,6 @@ class InterviewFinalAssessmentResponse(BaseModel):
 
 class InterviewResponse(BaseModel):
     id: UUID
-    interview_process_id: UUID
     title: str
     created_at: datetime
     updated_at: datetime
