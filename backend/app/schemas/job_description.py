@@ -29,7 +29,7 @@ class JobDescriptionResponse(BaseModel):
     isUrgent: Optional[bool] = False
     
     class Config:
-        orm_mode = True
+        from_atributes = True
 
 class JobPaginationResponse(BaseModel):
     jobs: List[JobDescriptionResponse]

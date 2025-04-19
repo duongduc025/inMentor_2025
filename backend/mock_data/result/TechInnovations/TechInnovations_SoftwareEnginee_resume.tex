@@ -1,0 +1,128 @@
+%==== PACKAGES AND OTHER DOCUMENT CONFIGURATIONS  ====%
+\documentclass{resume} % Use the custom resume.cls style
+\usepackage[left=0.25in,top=0.25in,right=0.25in,bottom=0.25in]{geometry} % Document margins
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{fontawesome} % For GitHub and LinkedIn symbols
+\usepackage{textcomp} % For mobile phone and email symbols
+% \usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{xcolor}  % Required for defining custom colors
+\usepackage{hyperref}
+% Define your custom colors
+% \definecolor{myblue}{RGB}{173, 216, 246}
+% \definecolor{myblue}{RGB}{123, 176, 206}
+\definecolor{myblue}{RGB}{0, 164, 218}
+
+% Set hyperlink colors
+\hypersetup{
+    colorlinks=true,
+    linkcolor=myblue,
+    citecolor=myblue,
+    urlcolor=myblue
+}
+
+\usepackage{hyperref}
+
+%==== Headings ====%
+\name{Hoang Duc Duong} % Your name
+\address{
+{\faPhone} \href{tel:0889 222 717}{0889222717} \quad {\faEnvelope} \href{mailto:hoangducduong025@gmail.com}{hoangducduong025@gmail.com} \quad {\faGithub} \href{https://github.com/nguyenvana}{https://github.com/nguyenvana} \quad }
+
+\begin{document}
+
+%===== WORK EXPERIENCE SECTION =====%
+    \begin{rSection}{Work Experience}
+                    \begin{rSubsection}
+                {Software Engineer}{April 2025 - present}
+                                    {\normalfont{\textit{Viettel Digital Talent Program 2025}}}
+                                {\normalfont{\textit{Ha Noi}}}
+                                    \item Designed and developed scalable web applications by applying system design principles, enhancing application performance by 30\%.
+                                    \item Collaborated with cross{-}functional teams to define and implement new features, improving user engagement by 25\%.
+                                    \item Explored AI applications in software engineering, including chatbot development, resulting in a 20\% increase in process efficiency.
+                            \end{rSubsection}
+                    \begin{rSubsection}
+                {Researcher}{July 2024 - December 2024}
+                                    {\normalfont{\textit{Data Science and Knowledge Technology Laboratory {-} DS\&KTLab, UET}}}
+                                {\normalfont{\textit{UET}}}
+                                    \item Developed a knowledge{-} and data{-}driven chatbot using AI techniques, enhancing business communication efficiency by 40\%.
+                                    \item Deployed machine learning models to analyze large datasets, optimizing system performance by 35\%.
+                                    \item Engineered RAG{-}based AI assistants using LLMs, improving enterprise knowledge retrieval by 50\%.
+                            \end{rSubsection}
+                    \begin{rSubsection}
+                {DS Intern}{July 2024 - December 2024}
+                                    {\normalfont{\textit{Ragodas Technology and Communications JSC}}}
+                                {\normalfont{\textit{Ha Noi}}}
+                                    \item Built a chatbot with LangChain and LangGraph, utilizing RAG for enterprise data retrieval, increasing data access speed by 40\%.
+                                    \item Optimized vector database search with Elasticsearch, managing and storing conversations with Redis, reducing retrieval time by 30\%.
+                                    \item Collaborated with a team to enhance data{-}driven decision{-}making processes, resulting in a 25\% improvement in operational efficiency.
+                            \end{rSubsection}
+            \end{rSection}
+
+%==== EDUCATION SECTION ====%
+\begin{rSection}{Education}
+                        \textbf{University of Engineering and Technology, VNU} \hfill {2019 - May 2026} \\
+                            {Bachelor of Science in Computer Science}
+                         
+             
+         
+    \end{rSection}
+
+% ==== PROJECTS SECTION =====%
+    \begin{rSection}{Projects}
+                    \begin{rSubsection}
+                                    {QAirline {-} Website for managing and booking flights}
+                                {\normalfont{Winter 2024 - Winter 2024}}{}{}
+                                    \item Engineered a full{-}stack airline booking website using React.js and Node.js, enhancing user experience and reducing booking time by 40\%.
+                                    \item Led a team of two in implementing a scalable architecture with MongoDB and Express.js, improving system performance by 30\%.
+                                    \item Integrated Redux and UI ShadCN to streamline state management, resulting in a 25\% increase in application responsiveness.
+                            \end{rSubsection}
+                    \begin{rSubsection}
+                                    {Child Mind Institute: Problematic Internet Use {-} Kaggle Competition}
+                                {\normalfont{Winter 2024 - Winter 2024}}{}{}
+                                    \item Developed machine learning models using Python to predict internet usage patterns, achieving an accuracy improvement of 15\%.
+                                    \item Conducted extensive data analysis and feature engineering, enhancing model precision by 20\%.
+                                    \item Collaborated with a cross{-}functional team to validate predictive models, ensuring robust and reliable outcomes.
+                            \end{rSubsection}
+                    \begin{rSubsection}
+                                    {Mobile plan consulting chatbot}
+                                {\normalfont{Winter 2024 - Winter 2024}}{}{}
+                                    \item Designed and implemented a chatbot using Python and FastAPI, improving customer engagement by 50\%.
+                                    \item Utilized LangChain and Redis to optimize data retrieval, reducing response time by 35\%.
+                                    \item Deployed the chatbot on Docker and Elasticsearch, ensuring scalability and high availability.
+                            \end{rSubsection}
+            \end{rSection}
+
+%==== TECHNICAL STRENGTHS SECTION ====%
+    \begin{rSection}{Technical Skills}
+        \begin{tabular}{ @{} l @{\hspace{1ex}} l }
+                                \textbf{Programming Languages}: Python, Java, JavaScript\\
+                                \textbf{Web Frameworks}: React, Angular, Vue.js\\
+                                \textbf{Software \& Tools}: Linux (Ubuntu), Git, VSCode, IntelliJ\\
+                                \textbf{Cloud Platforms}: AWS, Azure\\
+                                \textbf{Development Methodologies}: Agile development methodologies\\
+                                \textbf{Soft Skills}: Problem{-}solving, Teamwork, Communication skills\\
+                        \textbf{Certifications:} 
+                                            \href{https://example.com/vietnam{-}hackathon{-}2024}{\textbf{Certificate of Appreciation in Vietnam Hackathon: Onchain Names \& Identity 2024}},\\
+                                            \href{https://example.com/techspark{-}contest{-}2025}{\textbf{First Prize in the TechSpark Contest 2025}},\\
+                                 
+        \end{tabular}
+    \end{rSection}
+ 
+
+% ACHIEVEMENTS SECTION
+    \begin{rSection}{Achievements}
+        \begin{rSubsection}{}{}{}
+                            \item Awarded the Jardine Cycle and Carriage Scholarship for academic excellence and potential in technology{-}related fields.
+                            \item Developed a scalable web application project during university, utilizing JavaScript and React, which improved user engagement by 30\%.
+                            \item Led a team of 5 in a university project to create a cloud{-}based solution using AWS, enhancing data processing speed by 50\%.
+                            \item Recognized for outstanding problem{-}solving skills in a collaborative software development project, resulting in a 20\% reduction in bug reports.
+                            \item Successfully implemented Agile methodologies in a team project, improving project delivery time by 25\%.
+                    \end{rSubsection}
+    \end{rSection}
+
+\newcommand\myfontsize{\fontsize{0.1pt}{0.1pt}\selectfont} \myfontsize \color{white}
+Software Engineer, scalable web applications, software development principles, Agile development methodologies, Java, Python, JavaScript, React, Angular, Vue.js, problem{-}solving, teamwork, communication skills, AWS, Azure, Software Engineer, scalable web applications, software development principles, Agile development methodologies, Java, Python, JavaScript, React, Angular, Vue.js, problem{-}solving, teamwork, communication skills, AWS, Azure, {artificial intelligence engineer, azure cognitive services exp, azure services, core azure services, azure cognitive and generative ai, genai, aws,  gcp, java, clean, efficient, maintainable code, react, front end, back end, ai solutions, data analysis, pretrained models, automl, software development principles, version control, testing, continuous integration and deployment, python, javascript, prompt engieering, frontend, backend, html, css, api, angular, development, machine learning, artificial intelligence, deep learning, data warehouse, data modeling, data extraction, data transformation, data loading, sql, etl, data quality, data governance, data privacy, data visualization, data controls, privacy, security, compliance, sla, aws, terabyte to petabyte scale data, full stack software development, cloud, security engineering, security architecture, ai/ml engineering, technical product management, microsoft office, google suite, visualization tools, scripting, coding, programming languages, analytical skills, collaboration, leadership, communication, presentation skills, computer vision, senior, ms or ph.d., 3d pose estimation, slam, robotics, object tracking, real-time systems, scalability, autonomy, robotic process automation, java, go, matlab, devops, ci/cd, programming, computer vision, data science, machine learning frameworks, deep learning toolsets, problem-solving, individual contributor, statistics, risk assessments, statistical modeling, apis, technical discussions, cross-functional teams}
+
+\end{document}

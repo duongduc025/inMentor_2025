@@ -1,0 +1,173 @@
+{
+  "personal": {
+    "name": "Hoang Duc Duong",
+    "phone": "0889 222 717",
+    "email": "hoangducduong025@gmail.com",
+    "github": "https://github.com/nguyenvana",
+    "linkedin": null
+  },
+  "work_experience": [
+    {
+      "role": "Software Engineer",
+      "company": "Viettel Digital Talent Program 2025",
+      "location": "Ha Noi",
+      "from_date": "April 2025",
+      "to_date": "present",
+      "description": [
+        "Designed and developed scalable web applications by applying system design principles, enhancing application performance by 30%.",
+        "Collaborated with cross-functional teams to define and implement new features, improving user engagement by 25%.",
+        "Explored AI applications in software engineering, including chatbot development, resulting in a 20% increase in process efficiency."
+      ]
+    },
+    {
+      "role": "Researcher",
+      "company": "Data Science and Knowledge Technology Laboratory - DS&KTLab, UET",
+      "location": "UET",
+      "from_date": "July 2024",
+      "to_date": "December 2024",
+      "description": [
+        "Developed a knowledge- and data-driven chatbot using AI techniques, enhancing business communication efficiency by 40%.",
+        "Deployed machine learning models to analyze large datasets, optimizing system performance by 35%.",
+        "Engineered RAG-based AI assistants using LLMs, improving enterprise knowledge retrieval by 50%."
+      ]
+    },
+    {
+      "role": "DS Intern",
+      "company": "Ragodas Technology and Communications JSC",
+      "location": "Ha Noi",
+      "from_date": "July 2024",
+      "to_date": "December 2024",
+      "description": [
+        "Built a chatbot with LangChain and LangGraph, utilizing RAG for enterprise data retrieval, increasing data access speed by 40%.",
+        "Optimized vector database search with Elasticsearch, managing and storing conversations with Redis, reducing retrieval time by 30%.",
+        "Collaborated with a team to enhance data-driven decision-making processes, resulting in a 25% improvement in operational efficiency."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "QAirline - Website for managing and booking flights",
+      "type": null,
+      "link": "",
+      "resources": null,
+      "from_date": "Winter 2024",
+      "to_date": "Winter 2024",
+      "description": [
+        "Engineered a full-stack airline booking website using React.js and Node.js, enhancing user experience and reducing booking time by 40%.",
+        "Led a team of two in implementing a scalable architecture with MongoDB and Express.js, improving system performance by 30%.",
+        "Integrated Redux and UI ShadCN to streamline state management, resulting in a 25% increase in application responsiveness."
+      ]
+    },
+    {
+      "name": "Child Mind Institute: Problematic Internet Use - Kaggle Competition",
+      "type": null,
+      "link": "",
+      "resources": null,
+      "from_date": "Winter 2024",
+      "to_date": "Winter 2024",
+      "description": [
+        "Developed machine learning models using Python to predict internet usage patterns, achieving an accuracy improvement of 15%.",
+        "Conducted extensive data analysis and feature engineering, enhancing model precision by 20%.",
+        "Collaborated with a cross-functional team to validate predictive models, ensuring robust and reliable outcomes."
+      ]
+    },
+    {
+      "name": "Mobile plan consulting chatbot",
+      "type": null,
+      "link": "",
+      "resources": null,
+      "from_date": "Winter 2024",
+      "to_date": "Winter 2024",
+      "description": [
+        "Designed and implemented a chatbot using Python and FastAPI, improving customer engagement by 50%.",
+        "Utilized LangChain and Redis to optimize data retrieval, reducing response time by 35%.",
+        "Deployed the chatbot on Docker and Elasticsearch, ensuring scalability and high availability."
+      ]
+    }
+  ],
+  "skill_section": [
+    {
+      "name": "Programming Languages",
+      "skills": [
+        "Python",
+        "Java",
+        "JavaScript"
+      ]
+    },
+    {
+      "name": "Web Frameworks",
+      "skills": [
+        "React",
+        "Angular",
+        "Vue.js"
+      ]
+    },
+    {
+      "name": "Software & Tools",
+      "skills": [
+        "Linux (Ubuntu)",
+        "Git",
+        "VSCode",
+        "IntelliJ"
+      ]
+    },
+    {
+      "name": "Cloud Platforms",
+      "skills": [
+        "AWS",
+        "Azure"
+      ]
+    },
+    {
+      "name": "Development Methodologies",
+      "skills": [
+        "Agile development methodologies"
+      ]
+    },
+    {
+      "name": "Soft Skills",
+      "skills": [
+        "Problem-solving",
+        "Teamwork",
+        "Communication skills"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Bachelor of Science in Computer Science",
+      "university": "University of Engineering and Technology, VNU",
+      "from_date": "2019",
+      "to_date": "May 2026",
+      "courses": [
+        "Data Structures and Algorithms",
+        "Software Development Principles",
+        "Web Application Development",
+        "Agile Development Methodologies",
+        "Java Programming",
+        "Python Programming",
+        "JavaScript and Frontend Frameworks (React, Angular, Vue.js)"
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Certificate of Appreciation in Vietnam Hackathon: Onchain Names & Identity 2024",
+      "by": "Vietnam Hackathon",
+      "link": "https://example.com/vietnam-hackathon-2024"
+    },
+    {
+      "name": "First Prize in the TechSpark Contest 2025",
+      "by": "TechSpark",
+      "link": "https://example.com/techspark-contest-2025"
+    }
+  ],
+  "achievements": [
+    "Awarded the Jardine Cycle and Carriage Scholarship for academic excellence and potential in technology-related fields.",
+    "Developed a scalable web application project during university, utilizing JavaScript and React, which improved user engagement by 30%.",
+    "Led a team of 5 in a university project to create a cloud-based solution using AWS, enhancing data processing speed by 50%.",
+    "Recognized for outstanding problem-solving skills in a collaborative software development project, resulting in a 20% reduction in bug reports.",
+    "Successfully implemented Agile methodologies in a team project, improving project delivery time by 25%."
+  ],
+  "keywords": "Software Engineer, scalable web applications, software development principles, Agile development methodologies, Java, Python, JavaScript, React, Angular, Vue.js, problem-solving, teamwork, communication skills, AWS, Azure"
+}
