@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.schemas.job_description import JobDescriptionResponse, JobPaginationResponse
-from app.services.chat_service import process_chat
 from app.dependencies import verify_jwt
 from app.models.job_description import JobDescription
 from app.database import get_db

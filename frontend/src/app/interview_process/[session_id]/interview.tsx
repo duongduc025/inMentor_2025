@@ -25,7 +25,6 @@ import Logo from "@/assets/logo.png";
 import { Interview_Chat } from "@/utils/api";
 import { useAuth } from '@/context/AuthContext'; 
 
-// Helper function to format timestamp
 const formatMessageTime = (timestamp: string) => {
   const date = new Date(timestamp);
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -65,14 +64,17 @@ const MeetingInterface = ({ onComplete, processData }: MeetingInterfaceProps) =>
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const processId = processData?.id || "";
+  // Ref to track if initial message has been sent
+  const hasCalledInitialMessage = useRef(false);
 
   // Initial message on component mount
   useEffect(() => {
     // If we have a process ID, send initial greeting to start the interview
-    if (processId && messages.length === 0) {
+    if (processId && messages.length === 0 && !hasCalledInitialMessage.current) {
+      hasCalledInitialMessage.current = true;
       handleSystemMessage();
     }
-  }, [processId]); // Remove session dependency
+  }, [processId, messages.length]); // Added messages.length to dependencies
 
   const handleSystemMessage = async () => {
     const token = await getToken();

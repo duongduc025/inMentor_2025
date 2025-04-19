@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
+from typing import Dict, Any
 
 class InterviewMessageResponse(BaseModel):
     id: UUID
@@ -31,19 +32,32 @@ class InterviewProcessRequest(BaseModel):
     updated_at: Optional[datetime] = None
 
 class InterviewCVAssessmentRequest(BaseModel):
-    content: str
-    decision: str
-    reviewer_name: str
     created_at: Optional[datetime] = None
+
+class CreateInterviewCVAssessmentResponse(BaseModel):
+    id: UUID
+    interview_process_id: UUID
+    created_at: datetime
 
 class InterviewCVAssessmentResponse(BaseModel):
     id: UUID
-    interview_process_id: UUID
-    content: str
-    decision: str
-    reviewer_name: str
+    process_id: UUID
+    match_percentage: Optional[int] = None
+    summary: Optional[str] = None
+    strengths: Optional[Dict[str, Any]] = None
+    weaknesses: Optional[Dict[str, Any]] = None
+    skills_match: Optional[Dict[str, Any]] = None
+    experience_match: Optional[Dict[str, Any]] = None
+    education_match: Optional[Dict[str, Any]] = None
+    certifications: Optional[Dict[str, Any]] = None
+    projects: Optional[Dict[str, Any]] = None
+    soft_skills_match: Optional[Dict[str, Any]] = None
+    layout_score: Optional[int] = None
+    career_objective: Optional[Dict[str, Any]] = None
+    recommendations: Optional[Dict[str, Any]] = None
+    cv_json: Optional[Dict[str, Any]] = None
     created_at: datetime
-
+    updated_at: Optional[datetime] = None
 
 class InterviewFinalAssessmentRequest(BaseModel):
     interview_id: UUID
@@ -71,3 +85,6 @@ class InterviewRequest(BaseModel):
     title: str
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+
+class RunCVAssessmentRequest(BaseModel):
+    pass

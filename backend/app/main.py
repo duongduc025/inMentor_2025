@@ -2,7 +2,6 @@ import openai
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routers import chat
 from app.api.routers import job
 from app.api.routers import interview
 from app.database import engine
@@ -32,6 +31,5 @@ app.add_middleware(
 async def on_startup():
     create_tables()
 
-app.include_router(chat.router, prefix="/api")
 app.include_router(job.router, prefix="/api", tags=["jobs"])  
 app.include_router(interview.router, prefix="/api", tags=["interviews"])  

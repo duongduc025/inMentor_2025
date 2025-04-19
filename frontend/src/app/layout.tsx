@@ -7,7 +7,6 @@ import Navbar from '@/components/Navbar';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
-import { ChatSessionProvider } from '@/context/ChatSessionContext';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -33,7 +32,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ChatSessionProvider>
       <div className="flex flex-grow h-screen">
         <main className="flex flex-grow flex-col max-w-full">
           {shouldShowNavbar && <Navbar />}
@@ -48,7 +46,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </main>
       </div>
-    </ChatSessionProvider>
   );
 }
 
