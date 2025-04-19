@@ -99,7 +99,6 @@ export default function JobDetail({ params }: { params: { job_id: string } }) {
       }
 
       const processId = await createNewInterviewProcess(token, job.id);  
-      console.log("Virtual interview process created with ID:", processId);
       router.push(`/interview_process/${processId}`);
     } catch (err) {
       console.error("Failed to create virtual interview process:", err);

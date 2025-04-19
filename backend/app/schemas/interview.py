@@ -32,7 +32,7 @@ class InterviewProcessRequest(BaseModel):
     updated_at: Optional[datetime] = None
 
 class InterviewCVAssessmentRequest(BaseModel):
-    created_at: Optional[datetime] = None
+    pass
 
 class CreateInterviewCVAssessmentResponse(BaseModel):
     id: UUID

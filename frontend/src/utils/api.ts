@@ -52,15 +52,13 @@ export async function createNewInterviewProcess(
   job_id: string,
 ): Promise<string> {  // Update return type to string
   const url = `${API_URL}${API_PREFIX}/interview_processes`;
-  console.log('Creating new interview process with token:', token);
-  console.log('Creating new interview process with job_id:', job_id);
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ job_id, status: 'new' }),  // Specify valid status
+    body: JSON.stringify({ job_id, status: 'cv_assessment' }),  
   });
   
   if (!response.ok) {
@@ -71,6 +69,57 @@ export async function createNewInterviewProcess(
   
   const data = await response.json();
   return data.id;  // Return the process ID
+}
+
+//Update interview process status
+export async function updateInterviewProcessStatus(
+  token: string,
+  process_id: string,
+  status: string
+): Promise<any> {
+  const url = `${API_URL}${API_PREFIX}/interview_processes/${process_id}/status`;
+  
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(status),
+  });
+  console.log(status);
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    console.error('Interview process status update failed:', errorData);
+    throw new Error('Failed to update interview process status');
+  }
+  
+  return await response.json();
+}
+
+//Get interview process by ID
+export async function fetchInterviewProcess(
+  process_id: string,
+  token: string
+): Promise<any> {
+  const url = `${API_URL}${API_PREFIX}/interview_processes/${process_id}`;
+  
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,  
+    },
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    console.error('Failed to fetch interview process:', errorData);
+    throw new Error('Failed to fetch interview process');
+  }
+  
+  return await response.json();
 }
 
 
@@ -99,9 +148,47 @@ export async function createNewInterview(
   return await response.json();
 }
 
-//export async function createCVAssessment
+export async function createCVAssessment(
+  token:string,
+  process_id:string,
+): Promise<any> {
+  const url = `${API_URL}${API_PREFIX}/interview_processes/${process_id}/cv_assessment`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    console.error('CV assessment creation failed:', errorData);
+    throw new Error('Failed to create CV assessment');
+  }
+  return await response.json();
+}
 
-//export async function createFinalAssessment
+
+export async function createFinalAssessment(
+  token:string,
+  process_id:string,
+): Promise<any> {
+  const url = `${API_URL}${API_PREFIX}/interview_processes/${process_id}/final_assessment`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    console.error('Final assessment creation failed:', errorData);
+    throw new Error('Failed to create final assessment');
+  }
+  return await response.json();
+}
+
 
 
 export async function Interview_Chat(

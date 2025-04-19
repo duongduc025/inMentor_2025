@@ -38,25 +38,30 @@ const NavigationGuide: React.FC<NavigationGuideProps> = ({ currentStep, processI
     };
   }, []);
   
-  // Define the steps based on the current stage (removed Completion step)
+  // Define the steps based on the current stage
   const steps: Step[] = [
     {
       name: 'CV Assessment',
-      status: currentStep === 'new' ? 'current' : 
-             ['cv_assessed', 'interviewed', 'final_assessed', 'completed'].includes(currentStep) ? 'completed' : 'upcoming',
+      status: currentStep === 'cv_assessment' ? 'current' : 
+             ['interview', 'final_assessment', 'completed'].includes(currentStep) ? 'completed' : 'upcoming',
       description: 'Review and evaluate candidate CV'
     },
     {
       name: 'Interview',
-      status: currentStep === 'cv_assessed' ? 'current' : 
-             ['interviewed', 'final_assessed', 'completed'].includes(currentStep) ? 'completed' : 'upcoming',
+      status: currentStep === 'interview' ? 'current' : 
+             ['final_assessment', 'completed'].includes(currentStep) ? 'completed' : 'upcoming',
       description: 'Conduct technical interview'
     },
     {
       name: 'Final Assessment',
-      status: ['interviewed', 'final_assessed'].includes(currentStep) ? 'current' : 
+      status: currentStep === 'final_assessment' ? 'current' : 
              currentStep === 'completed' ? 'completed' : 'upcoming',
       description: 'Complete candidate evaluation'
+    },
+    {
+      name: 'Completed',
+      status: currentStep === 'completed' ? 'current' : 'upcoming',
+      description: 'Process finalized'
     }
   ];
 

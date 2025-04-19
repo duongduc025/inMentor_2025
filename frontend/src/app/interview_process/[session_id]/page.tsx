@@ -9,82 +9,14 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import NavigationGuide from './navigation-guide';
-
-// Mock function to simulate fetching process data
-const fetchInterviewProcess = async (sessionId: string) => {
-  // In a real app, you would fetch this data from your API
-  // For now, we'll simulate API responses with different statuses for testing
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Return different mock data based on session ID to test different flows
-  // In production, you would replace this with a real API call
-  if (sessionId === 'new-session') {
-    return {
-      id: sessionId,
-      candidate_id: '123',
-      job_id: '456',
-      status: 'new',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  } else if (sessionId === 'cv-assessed') {
-    return {
-      id: sessionId,
-      candidate_id: '123',
-      job_id: '456',
-      status: 'cv_assessed',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  } else if (sessionId === 'interviewed') {
-    return {
-      id: sessionId,
-      candidate_id: '123',
-      job_id: '456',
-      status: 'interviewed',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  } else if (sessionId === 'final-assessed') {
-    return {
-      id: sessionId,
-      candidate_id: '123',
-      job_id: '456',
-      status: 'final_assessed',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  } else if (sessionId === 'completed') {
-    return {
-      id: sessionId,
-      candidate_id: '123',
-      job_id: '456',
-      status: 'completed',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  } else {
-    // Default for any other ID
-    return {
-      id: sessionId,
-      candidate_id: '123',
-      job_id: '456',
-      status: 'new',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  }
-};
-
-// Mock function to update process status
-const updateProcessStatus = async (processId: string, newStatus: string) => {
-  console.log(`Updating process ${processId} to status: ${newStatus}`);
-  // In a real app, you would make an API call to update the status
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return { success: true };
-};
+import { 
+  updateInterviewProcessStatus, 
+  fetchInterviewProcess,
+  createCVAssessment,
+  createNewInterview,
+  createFinalAssessment
+} from '@/utils/api';
+import { useAuth } from '@/context/AuthContext';
 
 export default function InterviewProcessPage() {
   const params = useParams();
@@ -93,12 +25,23 @@ export default function InterviewProcessPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [processData, setProcessData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const { getToken } = useAuth();
+  const [stageInitialized, setStageInitialized] = useState(false);
 
+  // Fetch initial process data
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
-        const data = await fetchInterviewProcess(sessionId);
+        
+        // Lấy token từ context xác thực
+        const token = await getToken();
+        if (!token) {
+          throw new Error("Authentication required");
+        }
+        
+        // Gọi API fetchInterviewProcess với token
+        const data = await fetchInterviewProcess(sessionId, token);
         setProcessData(data);
       } catch (err) {
         console.error("Error fetching interview process:", err);
@@ -109,19 +52,76 @@ export default function InterviewProcessPage() {
     };
     
     loadData();
-  }, [sessionId]);
+  }, [sessionId, getToken]);
+
+  // Initialize the current stage when process data is loaded
+  useEffect(() => {
+    const initializeCurrentStage = async () => {
+      if (!processData || stageInitialized) return;
+      
+      try {
+        const token = await getToken();
+        if (!token) {
+          throw new Error("Authentication required");
+        }
+
+        switch (processData.status) {
+          case 'cv_assessment':
+            await createCVAssessment(token, sessionId);
+            break;
+          case 'interview':
+            // Assuming we need a title for the interview
+            await createNewInterview(token, sessionId, "Interview Session");
+            break;
+          case 'final_assessment':
+            await createFinalAssessment(token, sessionId);
+            break;
+        }
+        setStageInitialized(true);
+      } catch (err) {
+        console.error(`Error initializing ${processData.status} stage:`, err);
+        setError(`Could not initialize the ${processData.status} stage`);
+      }
+    };
+
+    initializeCurrentStage();
+  }, [processData, sessionId, getToken, stageInitialized]);
 
   const handleCompleteStage = async (newStatus: string) => {
     try {
       setIsLoading(true);
-      await updateProcessStatus(sessionId, newStatus);
       
-      // Instead of reloading data, for demo purposes, let's immediately update the status
+      const token = await getToken();
+      if (!token) {
+        throw new Error("Authentication required");
+      }
+      console.log("newStatus", newStatus);
+      // Update the status first
+      await updateInterviewProcessStatus(token, sessionId, newStatus);
+      
+      
+      // Initialize the new stage
+      switch (newStatus) {
+        case 'cv_assessment':
+          await createCVAssessment(token, sessionId);
+          break;
+        case 'interview':
+          await createNewInterview(token, sessionId, sessionId);
+          break;
+        case 'final_assessment':
+          await createFinalAssessment(token, sessionId);
+          break;
+      }
+      
+      // Update the local state
       setProcessData({
         ...processData,
         status: newStatus,
         updated_at: new Date().toISOString()
       });
+      
+      // Reset the initialization flag for the new stage
+      setStageInitialized(true);
       
       setIsLoading(false);
     } catch (err) {
@@ -134,10 +134,9 @@ export default function InterviewProcessPage() {
   // For demo and testing purposes, add functions to manually navigate between stages
   const goToNextStage = () => {
     const statusMap: {[key: string]: string} = {
-      'new': 'cv_assessed',
-      'cv_assessed': 'interviewed',
-      'interviewed': 'final_assessed',
-      'final_assessed': 'completed'
+      'cv_assessment': 'interview',
+      'interview': 'final_assessment',
+      'final_assessment': 'completed'
     };
     
     if (processData.status in statusMap) {
@@ -147,10 +146,9 @@ export default function InterviewProcessPage() {
 
   const goToPreviousStage = () => {
     const statusMap: {[key: string]: string} = {
-      'cv_assessed': 'new',
-      'interviewed': 'cv_assessed',
-      'final_assessed': 'interviewed',
-      'completed': 'final_assessed'
+      'interview': 'cv_assessment',
+      'final_assessment': 'interview',
+      'completed': 'final_assessment'
     };
     
     if (processData.status in statusMap) {
@@ -190,7 +188,7 @@ export default function InterviewProcessPage() {
             size="sm" 
             variant="outline"
             onClick={goToPreviousStage} 
-            disabled={processData.status === 'new'}
+            disabled={processData.status === 'cv_assessment'}
           >
             <ArrowLeft className="mr-2" size={16} />
             Previous Stage
@@ -209,32 +207,40 @@ export default function InterviewProcessPage() {
 
   // Render the main content
   const renderContent = () => {
+    if (!stageInitialized && processData.status !== 'completed') {
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+          <span>Initializing {processData.status.replace('_', ' ')}...</span>
+        </div>
+      );
+    }
+
     switch (processData?.status) {
-      case 'new':
+      case 'cv_assessment':
         return (
           <CVEvaluator 
-            onComplete={() => handleCompleteStage('cv_assessed')} 
+            onComplete={() => handleCompleteStage('interview')} 
             processData={processData} 
           />
         );
       
-      case 'cv_assessed':
+      case 'interview':
         return (
           <MeetingInterface
-            onComplete={() => handleCompleteStage('interviewed')}
+            onComplete={() => handleCompleteStage('final_assessment')}
             processData={processData}
           />
         );
       
-      case 'interviewed':
+      case 'final_assessment':
         return (
           <AssessmentPage
-            onComplete={() => handleCompleteStage('final_assessed')}
+            onComplete={() => handleCompleteStage('completed')}
             processData={processData}
           />
         );
       
-      case 'final_assessed':
       case 'completed':
         return (
           <div className="container mx-auto py-8 px-4">
@@ -244,13 +250,11 @@ export default function InterviewProcessPage() {
                 The interview process has been completed. The final decision has been recorded.
               </p>
               
-              {processData.status === 'completed' && (
-                <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
-                  <p className="text-green-800">
-                    This interview process has been marked as completed. No further actions are required.
-                  </p>
-                </div>
-              )}
+              <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+                <p className="text-green-800">
+                  This interview process has been marked as completed. No further actions are required.
+                </p>
+              </div>
               
               <div className="mt-8">
                 <Link href="/dashboard">
@@ -279,9 +283,7 @@ export default function InterviewProcessPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation guide that appears when hovering near the top */}
-      <NavigationGuide currentStep={processData.status} processId={processData.id} />
-      
-      {/* Remove the padding div that was causing the space */}
+      <NavigationGuide currentStep={processData?.status} processId={processData?.id} />
       
       {/* Main content */}
       <main>

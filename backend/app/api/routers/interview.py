@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, Query, File, UploadFile, Body
 from sqlalchemy.orm import Session
-from app.schemas.interview import RunCVAssessmentRequest, CreateInterviewCVAssessmentResponse, InterviewProcessResponse, InterviewMessageResponse, InterviewMessageRequest, InterviewProcessRequest, InterviewCVAssessmentRequest, InterviewCVAssessmentResponse, InterviewFinalAssessmentRequest, InterviewFinalAssessmentResponse, InterviewResponse, InterviewRequest
+from app.schemas.interview import RunCVAssessmentRequest, CreateInterviewCVAssessmentResponse, InterviewProcessResponse, InterviewMessageResponse, InterviewMessageRequest, InterviewProcessRequest, InterviewCVAssessmentResponse, InterviewFinalAssessmentRequest, InterviewFinalAssessmentResponse, InterviewResponse, InterviewRequest
 from app.database import get_db
 from app.models.interview_process import InterviewProcess
 from app.models.cv_assessment import InterviewCVAssessment
@@ -13,6 +13,7 @@ from app.dependencies import verify_jwt
 from datetime import datetime
 from app.services.interview_service import InterviewService
 from app.services.cv_assessment_service import CVAssessmentService
+
 import os
 import tempfile
 import json
@@ -24,9 +25,7 @@ router = APIRouter()
 #create interview_process
 @router.post("/interview_processes", response_model=InterviewProcessResponse)
 async def create_interview_process(request: InterviewProcessRequest, user=Depends(verify_jwt), db: Session = Depends(get_db)):
-    job_id = request.job_id
     # Use "cv_review" as the default status or get it from the request
-    # The status should match one of the allowed values in your DB constraint
     status = "cv_review" if request.status is None else request.status
     
     new_process = InterviewProcess(
@@ -42,10 +41,49 @@ async def create_interview_process(request: InterviewProcessRequest, user=Depend
     
     return new_process
 
+#update interview_process
+@router.put("/interview_processes/{process_id}/status", response_model=InterviewProcessResponse)
+async def update_interview_process_status(
+    process_id: UUID, 
+    status: str = Body(...),
+    user=Depends(verify_jwt), 
+    db: Session = Depends(get_db)
+):
+    # Check if the interview process exists
+    interview_process = db.query(InterviewProcess).filter(InterviewProcess.id == process_id).first()
+    if not interview_process:
+        raise HTTPException(status_code=404, detail="Interview process not found")
+    
+    # Check if the user has permission to update this process
+    if str(interview_process.candidate_id) != user.user.id:
+        raise HTTPException(status_code=403, detail="You do not have permission to update this interview process")
+    
+    # Update the status and timestamp
+    interview_process.status = status
+    interview_process.updated_at = datetime.utcnow()
+    
+    db.commit()
+    db.refresh(interview_process)
+    
+    return interview_process
+
+@router.get("/interview_processes/{process_id}", response_model=InterviewProcessResponse)
+async def get_interview_process(process_id: UUID, user=Depends(verify_jwt), db: Session = Depends(get_db)):
+    # Check if the interview process exists
+    interview_process = db.query(InterviewProcess).filter(InterviewProcess.id == process_id).first()
+    if not interview_process:
+        raise HTTPException(status_code=404, detail="Interview process not found")
+    
+    # Check if the user has permission to access this process
+    if str(interview_process.candidate_id) != user.user.id:
+        raise HTTPException(status_code=403, detail="You do not have permission to access this interview process")
+    
+    return interview_process
+
 
 # create cv_assessment
 @router.post("/interview_processes/{process_id}/cv_assessment", response_model=CreateInterviewCVAssessmentResponse)
-async def create_cv_assessment(process_id: UUID, request: InterviewCVAssessmentRequest, user=Depends(verify_jwt), db: Session = Depends(get_db)):
+async def create_cv_assessment(process_id: UUID, user=Depends(verify_jwt), db: Session = Depends(get_db)):
     # Check if the interview process exists
     interview_process = db.query(InterviewProcess).filter(InterviewProcess.id == process_id).first()
     if not interview_process:
@@ -93,6 +131,21 @@ async def create_final_assessment(process_id: UUID, request: InterviewFinalAsses
         raise HTTPException(status_code=403, detail="You do not have permission to access this interview process")
     # Create the CV assessment
     interview = db.query(Interview).filter(Interview.process_id == process_id).first()
+    existing_assessment = db.query(InterviewFinalAssessment).filter(
+        InterviewFinalAssessment.process_id == process_id,
+        InterviewFinalAssessment.interview_id == interview.id
+    ).first()
+    if existing_assessment:
+        return InterviewFinalAssessmentResponse(
+            id=existing_assessment.id,
+            interview_process_id=process_id,
+            interview_id=interview.id,
+            content=existing_assessment.content,
+            final_decision=existing_assessment.final_decision,
+            assessor_name=existing_assessment.assessor_name,
+            created_at=existing_assessment.created_at
+        )
+    # If no assessment exists, create a new one
     new_assessment = InterviewFinalAssessment(
         process_id = process_id,
         interview_id = interview,
@@ -116,7 +169,15 @@ async def create_interview(process_id: UUID, request: InterviewRequest, user=Dep
         raise HTTPException(status_code=404, detail="Interview process not found")
     if str(interview_process.candidate_id) != user.user.id:
         raise HTTPException(status_code=403, detail="You do not have permission to access this interview process")
-    
+    existing_interview = db.query(Interview).filter(Interview.process_id == process_id).first()
+    if existing_interview:
+        return InterviewResponse(
+            id=existing_interview.id,
+            title=existing_interview.title,
+            created_at=existing_interview.created_at,
+            updated_at=existing_interview.updated_at
+        )
+    # If no interview exists, create a new one
     # Create the interview
     new_interview = Interview(
         process_id = process_id,
@@ -284,3 +345,6 @@ async def run_cv_assessment(
     except Exception as e:
         # Handle any exceptions that occur during file processing or assessment
         raise HTTPException(status_code=500, detail=f"Error processing CV: {str(e)}")
+
+
+
