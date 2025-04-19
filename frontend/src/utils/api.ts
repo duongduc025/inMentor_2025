@@ -1,4 +1,4 @@
-import { typeCookieOptions } from '@supabase/ssr';
+// import { typeCookieOptions } from '@supabase/ssr';
 import { fetchWithAuth } from './fetchWithAuth';
 import { Job, PaginatedJobsResponse } from '../types/job.interface';
 import axios from 'axios';
@@ -11,7 +11,7 @@ export async function getAllChatSessions(token: string) {
   const url = `${process.env.NEXT_PUBLIC_CHAT_API}/api/sessions`;
   return await fetchWithAuth(url, token);
 }
-
+//http://localhost:8000/api/interview_processes/58315134-3528-48d2-bc10-3a86e78b26cd/messages
 export async function fetchMessagesForSession(
   sessionId: string,
   token: string
@@ -145,16 +145,15 @@ export async function Interview_Chat(
   content: string
 ): Promise<any> {
   const url = `${API_URL}${API_PREFIX}/interview_processes/${process_id}/messages`;
-  
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ 
+    body: JSON.stringify({
       role,
-      content 
+      content
     }),
   });
   

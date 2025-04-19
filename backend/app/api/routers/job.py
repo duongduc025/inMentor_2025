@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.schemas.job_description import JobDescriptionResponse, JobPaginationResponse
-from app.services.chat_service import process_chat
 from app.dependencies import verify_jwt
 from app.models.job_description import JobDescription
 from app.database import get_db
@@ -18,7 +17,6 @@ async def get_job_description(job_id: UUID, db: Session = Depends(get_db)):
     if not job_description:
         raise HTTPException(status_code=404, detail="Job description not found")
     return job_description
-
 
 @router.get("/jobs", response_model=JobPaginationResponse)
 async def get_all_job_descriptions(

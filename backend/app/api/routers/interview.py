@@ -26,7 +26,7 @@ async def create_interview_process(request: InterviewProcessRequest, user=Depend
     new_process = InterviewProcess(
         candidate_id=UUID(user.user.id),
         job_id=request.job_id,
-        status=status,
+        status=status,  
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -72,7 +72,7 @@ async def create_final_assessment(process_id: UUID, request: InterviewFinalAsses
     interview = db.query(Interview).filter(Interview.process_id == process_id).first()
     new_assessment = InterviewFinalAssessment(
         process_id = process_id,
-        interview_id = interview,
+        interview_id = interview,   
         content = request.content,
         final_decision = request.final_decision,
         assessor_name = request.assessor_name,
